@@ -1,0 +1,13 @@
+.results-page {
+	display:none;
+}
+
+.answers li {
+	 
+    width: 70px;
+    height: 20px;
+    display: inline-block;
+    padding: 10px;
+    margin-right: 20px;
+    border: 1px solid lightgray;
+}

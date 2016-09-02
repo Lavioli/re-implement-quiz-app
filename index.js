@@ -85,7 +85,7 @@ var renderCurrentQuestionNumber = function(currentQuestionNum) {
 }
 
 //render current score:
-var renderCurrentScore = function(correctAnswerScore) {
+var renderCurrentScore = function(correctAnswerScore) { //var renderCurrentScore = function(correctAnswerScore, element) {
     $('.score').text(correctAnswerScore);
 }
 
@@ -118,7 +118,6 @@ var nextQuestionAnswer = function() {
     return state.currentQuestion += 1;
 
 };
-
 
 
 //function that resets the currentQuestion to -1, 

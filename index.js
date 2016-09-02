@@ -59,7 +59,18 @@ var state = {
 
 //calculates total questions
 var computeTotalQuestion = function() {
-    renderTotalQuestions(QUESTIONS.length);
+    return QUESTIONS.length;
+}
+
+//calculate current question the user is working on
+var computeCurrentQuestion = function() {
+  return state.currentQuestion+1;
+}
+
+// {  currentQuestion: 1, correctlyAnswered: [0] }
+//renderCurrentScore(state, $('.score'));
+var computeCorrectScore = function() {
+    return state.correctlyAnswered.length;
 }
 
 //outputs computeTotalQuestion result and changes the text of the element in HTML
@@ -67,20 +78,9 @@ var renderTotalQuestions = function(questionsLength) {
     $('.questions-total').text(questionsLength);
 }
 
-//calculate current question the user is working on
-var computeCurrentQuestion = function() {
-  renderCurrentQuestionNumber(state.currentQuestion+1);
-}
-
 //outputs computeCurrentQuestion result and modifies the text of .current-question
 var renderCurrentQuestionNumber = function (currentQuestionNum) {
     $('.question-current').text(currentQuestionNum);
-}
-
-// {  currentQuestion: 1, correctlyAnswered: [0] }
-//renderCurrentScore(state, $('.score'));
-var computeCorrectScore = function() {
-    renderCurrentScore(state.correctlyAnswered.length);
 }
 
 //render current score:
@@ -88,21 +88,9 @@ var renderCurrentScore = function(correctAnswerScore) {
     $('.score').text(correctAnswerScore);
 }
 
-//INVOKE ONLY after they press press answer!!!
-var pushCorrectAnswer = function() {
-    state.correctlyAnswered.push(state.currentQuestion);
-};
-
-//state modification function: move to the next question
-var nextQuestionAnswer = function() {
-    state.currentQuestion += 1;
-    renderQuestion();
-};
-
 //render question text
 var renderQuestion = function() {
     var currentQuestionIndex = state.currentQuestion;
-
     $('.question').text(QUESTIONS[currentQuestionIndex].text);
     renderChoices(QUESTIONS[currentQuestionIndex]);
 }
@@ -116,17 +104,11 @@ var renderChoices = function(questionArrayLocation) {
     })
 }
 
-// User scenario:
-// User answers first question correctly:
-// console.log(state);
-//   userSubmitAnswer(state, true);
-//   nextQuestion(state);
-// console.log(state);
 
 
 //render display: checks for: (called in event listener)
-    //IF currentQuestion < total#Questions
-        //THEN show question div, hide results page div.
+//IF currentQuestion < total#Questions
+//THEN show question div, hide results page div.
 var renderDisplay = function() {
     //if state.currentQuestion > QUestions.length
         //THEN $('.questions-page').hide();
@@ -137,8 +119,25 @@ var renderDisplay = function() {
     };
 };
 
+//INVOKE ONLY after they press press answer!!!
+var pushCorrectAnswer = function() {
+    state.correctlyAnswered.push(state.currentQuestion);
+};
+
+//state modification function: move to the next question
+var nextQuestionAnswer = function() {
+    state.currentQuestion += 1;
+    renderQuestion();
+};
+
+var computeAndRenderNextQues = function (){
+    renderTotalQuestions(computeTotalQuestion());
+
+}
 
 
+// User scenario:
+// User answers first question correctly:
 
 $(document).ready(function() {
 

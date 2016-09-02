@@ -1,4 +1,5 @@
-//All numbers in the js file is referenced by the index number of an array. Only rendering current question will have + 1.
+//All numbers in the js file is referenced by the index number of an array. 
+//only the display of the current question will have +1. 
 
 var QUESTIONS = [{
     text: 'question 1',
@@ -38,24 +39,10 @@ var QUESTIONS = [{
     answer: 3
 }];
 
-//save the index number of the correct & incorrect questions into an array called answeredQuestions
-//create a new property in the incoming array that will determine the correct/incorrect answer by the user (true/false)
-    //use this to create a score tracker,
-        //if correctAnswer === true, create a counter for the score
-        //on the results page, show how many questions the user answered correctly
-//when user goes back to the website after closing, the question correct will be pushed to array
-    //correct/incorrect store as new property: true/false
-//user comes back
-    //IF  the length of the answeredQuestions array > 0
-        //THEN shift.() the QUESTIONS in the length of the answeredQuestions array
-
 var state = {
-    currentQuestion: -1,
+    currentQuestion: -1, //-1 indicates the presence of the array
     correctlyAnswered: []
 };
-
-// var currentQuestionNumber = state.currentQuestion;
-// var correctAnsweredQuestions = state.correctlyAnswered;
 
 //calculates total questions
 var computeTotalQuestion = function() {
@@ -64,13 +51,27 @@ var computeTotalQuestion = function() {
 
 //calculate current question the user is working on
 var computeCurrentQuestion = function() {
-  return state.currentQuestion+1;
+    return state.currentQuestion + 1;
 }
 
-// {  currentQuestion: 1, correctlyAnswered: [0] }
-//renderCurrentScore(state, $('.score'));
+//calculate the score of correctly answered questions
 var computeCorrectScore = function() {
     return state.correctlyAnswered.length;
+}
+
+//calculate current question the user is working on
+var computeCurrentQuestion = function() {
+    return state.currentQuestion + 1;
+}
+
+//resets the current question back to -1
+var resetCurrentQuestion = function() {
+    return state.currentQuestion = -1;
+}
+
+//reset the current score back to 0;
+var resetCurrentScore = function() {
+    $('.score').text(0);
 }
 
 //outputs computeTotalQuestion result and changes the text of the element in HTML
@@ -79,7 +80,7 @@ var renderTotalQuestions = function(questionsLength) {
 }
 
 //outputs computeCurrentQuestion result and modifies the text of .current-question
-var renderCurrentQuestionNumber = function (currentQuestionNum) {
+var renderCurrentQuestionNumber = function(currentQuestionNum) {
     $('.question-current').text(currentQuestionNum);
 }
 
@@ -89,166 +90,83 @@ var renderCurrentScore = function(correctAnswerScore) {
 }
 
 //render question text
-var renderQuestion = function() {
+var renderQuestionChoices = function() {
     var currentQuestionIndex = state.currentQuestion;
+    var questionArrayLocation = QUESTIONS[currentQuestionIndex]
     $('.question').text(QUESTIONS[currentQuestionIndex].text);
-    renderChoices(QUESTIONS[currentQuestionIndex]);
-}
-
-//render answer choices
-var renderChoices = function(questionArrayLocation) {
     $('.answers').empty();
-
-    questionArrayLocation.answers.forEach(function(element, index){
+    questionArrayLocation.answers.forEach(function(element, index) {
         $('.answers').append('<li value="' + index + '">' + element + '</li>');
     })
 }
 
-
-
-//render display: checks for: (called in event listener)
-//IF currentQuestion < total#Questions
-//THEN show question div, hide results page div.
-var renderDisplay = function() {
-    //if state.currentQuestion > QUestions.length
-        //THEN $('.questions-page').hide();
-            // $('.results-page').show();
-    if(state.currentQuestion > QUESTIONS.length) {
-        $('.questions-page').hide();
-        $('.results-page').show();
-    };
+//after all the questions are answered, right after the last question, 
+//the questions-page will hide and the results page will show
+var showHideDiv = function(showDiv,hideDiv) {
+    $(showDiv).show();
+    $(hideDiv).hide();
 };
 
-//INVOKE ONLY after they press press answer!!!
+//pushes the correct answered question number into the array, 
+//will only be invoked if it is the correct answer
 var pushCorrectAnswer = function() {
     state.correctlyAnswered.push(state.currentQuestion);
 };
 
 //state modification function: move to the next question
 var nextQuestionAnswer = function() {
-    state.currentQuestion += 1;
-    renderQuestion();
+    return state.currentQuestion += 1;
+
 };
 
-var computeAndRenderNextQues = function (){
+
+
+//function that resets the currentQuestion to -1, 
+var resetGame = function() {
+    resetCurrentScore();
+    resetCurrentQuestion();
     renderTotalQuestions(computeTotalQuestion());
-
+    computeAndRenderNextQues();
+    showHideDiv('.questions-page', '.results-page');
 }
 
-
-// User scenario:
-// User answers first question correctly:
-
-$(document).ready(function() {
-
-    computeTotalQuestion();
-    nextQuestionAnswer();
-
-    $('.answers li').on('click',function() {
-      if ($(this).val() === QUESTIONS[state.currentQuestion].answer){
-        alert('bravo!!');
-        pushCorrectAnswer();
-        computeCurrentQuestion();
-        computeCorrectScore();
-        nextQuestionAnswer();
-      } else {
-            alert('Sorry!');
-      }
-    })
-
-
-});
-
-
-
-// ----------
-
-/*
-
-
-
-var answeredQuestions = [],
-
-
-
-
-
-var questionsPageElement = $('.questions-page');
-var questionCurrentElement = $('.question-current');
-var questionsTotalElement = $('.questions-total');
-var questionElement = $('.question');
-var answersElement = $('.answers');
-
-var resultsPageElement = $('.results-page');
-var scoreElement = $('.score');
-var restartButtonElement = $('.restart-button');
-
-var showResults = function() {
-    questionsPageElement.hide();
-    resultsPageElement.show();
-};
-
-var showQuestions = function() {
-    resultsPageElement.hide();
-    questionsPageElement.show();
-};
-
-var resetScore = function() {
-    scoreElement.text(0); //grab the score from scroe tracker property?
-};
-
-var increaseScore = function() {
-    var score = parseInt(scoreElement.text(), 10);
-    scoreElement.text(score + 1);
-};
-
-var transferQuestion = function() {
-    answeredQuestions.push(QUESTIONS.shift());
-}
-
-var currentQuestionCount = answeredQuestions.length + 1;
-
-
-var setQuestion = function() {
-    // var question = QUESTIONS[questionIndex];
-     var question = QUESTIONS[0]; //using this because previous questions are pop and pushed
-    questionCurrentElement.text(currentQuestionCount);
-    questionElement.text(question.text);
-    answersElement.empty();
-    //we can use .forEach/map?
-    for (var i = 0; i < question.answers.length; i++) {
-        var answer = question.answers[i];
-        answersElement.append('<li><button type="button">' + answer + '</button></li>');
-    }
-};
-
-answersElement.on('click', 'button', function() {
-    var choice = $(this).parent().index(); //this is the index of the answer choice
-    console.log(choice);
-    // var questionIndex = parseInt(questionCurrentElement.text(), 10); //parsing current question # into a num
-    var question = QUESTIONS[0];
-    if (question.answer === choice) { //checking if answer is correct
-        increaseScore();
-        //invoke a function where when the question is correct, the Question[object] gets into the correctAnswer array
-        //invoke a function that POPS the current element in the QUESTIONS array, and push into answeredQuestions array
-    }
-
-    if (QUESTIONS.length > 0) {
-        // setQuestion(questionIndex + 1);
-        setQuestion();
+var computeAndRenderNextQues = function() {
+    if ((state.currentQuestion + 1) >= QUESTIONS.length) {
+        showHideDiv('.results-page', '.questions-page');
+        $('#results-page-question').hide();
     } else {
-        showResults();
+        nextQuestionAnswer(); //increments state.currentQuestion  
+        renderQuestionChoices(); //displays both question & answer choices
+        renderCurrentScore(computeCorrectScore()); //displays current score
+        renderCurrentQuestionNumber(computeCurrentQuestion()); //modify currentQuestion that is being displayed, ex: state.currentQuestion=1, but displays 2
     }
-});
-
-restartButtonElement.click(function() {
-    setQuestion();
-    resetScore();
-    showQuestions();
-});
+}
 
 $(document).ready(function() {
-    questionsTotalElement.text(QUESTIONS.length + answeredQuestions.length);
-    setQuestion();
+
+    //when the page first loads, the total number of questions
+    //and the first question & choices should be displayed
+    renderTotalQuestions(computeTotalQuestion());
+    computeAndRenderNextQues();
+
+    //when the answer choice is clicked, it will check for correct/incorrect answer
+    //after checking both conditions, the next question should be displayed
+    $('.answers').on('click', 'li', function() {
+        if ($(this).val() === QUESTIONS[state.currentQuestion].answer) { //if answer is correct
+            alert('bravo!!');
+            pushCorrectAnswer();
+            computeAndRenderNextQues();
+        } else {
+            alert('Sorry!');
+            computeAndRenderNextQues();
+        }
+    });
+$('.restart-button').on('click', function() {
+    resetGame();
+})
+
+
+
+
 });
-*/
+

@@ -6,23 +6,28 @@
 </head>
 <div class="questions-page">
     <!-- score tracker at the top of the page -->
-    <div>
+    <div id="current-score">
         You scored <span class="score">0</span>/<span class="questions-total">0</span>
     </div>
     <div class="question">
     </div>
     <ul class="answers">
     </ul>
+     
     <!-- current question at the bottom of the page -->
     <div>
         <span class="question-current">0</span>/<span class="questions-total">0</span>
     </div>
 </div>
 <div class="results-page">
-    <div>
+    <div id="results-page-question">
         <span class="question-current">0</span>/<span class="questions-total">0</span>
     </div>
-    <button type="button" class="restart-button">Restart</button>
+    <div id="final-score">
+        Final Score: <span class="score">0</span>/<span class="questions-total">0</span>
+    </div>
 </div>
+
+<button type="button" class="restart-button">Restart</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 <script src="index.js"></script>

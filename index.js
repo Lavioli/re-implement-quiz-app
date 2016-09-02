@@ -45,58 +45,53 @@ var state = {
 };
 
 //calculates total questions
-var computeTotalQuestion = function() {
-    return QUESTIONS.length;
+var computeTotalQuestion = function(questionsArray) {
+    return questionsArray.length;
 }
 
 //calculate current question the user is working on
-var computeCurrentQuestion = function() {
+var computeCurrentQuestion = function(state) {
     return state.currentQuestion + 1;
 }
 
 //calculate the score of correctly answered questions
-var computeCorrectScore = function() {
+var computeCorrectScore = function(state) {
     return state.correctlyAnswered.length;
 }
 
-//calculate current question the user is working on
-var computeCurrentQuestion = function() {
-    return state.currentQuestion + 1;
-}
-
 //resets the current question back to -1
-var resetCurrentQuestion = function() {
+var resetCurrentQuestion = function(state) {
     return state.currentQuestion = -1;
 }
 
 //reset the current score back to 0;
-var resetCurrentScore = function() {
-    $('.score').text(0);
+var resetCurrentScore = function(state) {
+    state.correctlyAnswered = [];
 }
 
 //outputs computeTotalQuestion result and changes the text of the element in HTML
-var renderTotalQuestions = function(questionsLength) {
-    $('.questions-total').text(questionsLength);
+var renderTotalQuestions = function(questionsLength, element) {
+    element.text(questionsLength);
 }
 
 //outputs computeCurrentQuestion result and modifies the text of .current-question
-var renderCurrentQuestionNumber = function(currentQuestionNum) {
-    $('.question-current').text(currentQuestionNum);
+var renderCurrentQuestionNumber = function(currentQuestionNum, element) {
+    element.text(currentQuestionNum);
 }
 
 //render current score:
-var renderCurrentScore = function(correctAnswerScore) { //var renderCurrentScore = function(correctAnswerScore, element) {
-    $('.score').text(correctAnswerScore);
+var renderCurrentScore = function(correctAnswerScore, element) { 
+    element.text(correctAnswerScore);
 }
 
 //render question text
-var renderQuestionChoices = function() {
+var renderQuestionChoices = function(state, questionsArray,questionElement, answerElement) {
     var currentQuestionIndex = state.currentQuestion;
-    var questionArrayLocation = QUESTIONS[currentQuestionIndex]
-    $('.question').text(QUESTIONS[currentQuestionIndex].text);
-    $('.answers').empty();
+    var questionArrayLocation = questionsArray[currentQuestionIndex]
+    questionElement.text(QUESTIONS[currentQuestionIndex].text);
+    answerElement.empty();
     questionArrayLocation.answers.forEach(function(element, index) {
-        $('.answers').append('<li value="' + index + '">' + element + '</li>');
+        answerElement.append('<li value="' + index + '">' + element + '</li>');
     })
 }
 
@@ -109,12 +104,12 @@ var showHideDiv = function(showDiv,hideDiv) {
 
 //pushes the correct answered question number into the array, 
 //will only be invoked if it is the correct answer
-var pushCorrectAnswer = function() {
+var pushCorrectAnswer = function(state) {
     state.correctlyAnswered.push(state.currentQuestion);
 };
 
 //state modification function: move to the next question
-var nextQuestionAnswer = function() {
+var nextQuestionAnswer = function(state) {
     return state.currentQuestion += 1;
 
 };
@@ -122,22 +117,22 @@ var nextQuestionAnswer = function() {
 
 //function that resets the currentQuestion to -1, 
 var resetGame = function() {
-    resetCurrentScore();
-    resetCurrentQuestion();
-    renderTotalQuestions(computeTotalQuestion());
-    computeAndRenderNextQues();
+    resetCurrentScore(state);
+    resetCurrentQuestion(state);
+    renderTotalQuestions(computeTotalQuestion(QUESTIONS), $('.questions-total'));
+    computeAndRenderNextQues(state, QUESTIONS);
     showHideDiv('.questions-page', '.results-page');
 }
 
-var computeAndRenderNextQues = function() {
-    if ((state.currentQuestion + 1) >= QUESTIONS.length) {
+var computeAndRenderNextQues = function(state, questionsArray) {
+    if ((state.currentQuestion + 1) >= questionsArray.length) {
         showHideDiv('.results-page', '.questions-page');
         $('#results-page-question').hide();
     } else {
-        nextQuestionAnswer(); //increments state.currentQuestion  
-        renderQuestionChoices(); //displays both question & answer choices
-        renderCurrentScore(computeCorrectScore()); //displays current score
-        renderCurrentQuestionNumber(computeCurrentQuestion()); //modify currentQuestion that is being displayed, ex: state.currentQuestion=1, but displays 2
+        nextQuestionAnswer(state); //increments state.currentQuestion  
+        renderQuestionChoices(state, questionsArray, $('.question'), $('.answers')); //displays both question & answer choices
+        renderCurrentScore(computeCorrectScore(state), $('.score')); //displays current score
+        renderCurrentQuestionNumber(computeCurrentQuestion(state), $('.question-current')); //modify currentQuestion that is being displayed, ex: state.currentQuestion=1, but displays 2
     }
 }
 
@@ -145,19 +140,19 @@ $(document).ready(function() {
 
     //when the page first loads, the total number of questions
     //and the first question & choices should be displayed
-    renderTotalQuestions(computeTotalQuestion());
-    computeAndRenderNextQues();
+    renderTotalQuestions(computeTotalQuestion(QUESTIONS), $('.questions-total'));
+    computeAndRenderNextQues(state, QUESTIONS);
 
     //when the answer choice is clicked, it will check for correct/incorrect answer
     //after checking both conditions, the next question should be displayed
     $('.answers').on('click', 'li', function() {
         if ($(this).val() === QUESTIONS[state.currentQuestion].answer) { //if answer is correct
             alert('bravo!!');
-            pushCorrectAnswer();
-            computeAndRenderNextQues();
+            pushCorrectAnswer(state);
+            computeAndRenderNextQues(state, QUESTIONS);
         } else {
             alert('Sorry!');
-            computeAndRenderNextQues();
+            computeAndRenderNextQues(state, QUESTIONS);
         }
     });
 $('.restart-button').on('click', function() {

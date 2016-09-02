@@ -1,5 +1,5 @@
-//All numbers in the js file is referenced by the index number of an array. 
-//only the display of the current question will have +1. 
+//All numbers in the js file is referenced by the index number of an array.
+//only the display of the current question will have +1.
 
 var QUESTIONS = [{
     text: 'question 1',
@@ -9,16 +9,16 @@ var QUESTIONS = [{
         'BAM128',
         'Barely'
     ],
-    answer: 0
+    answer: '0815'
 }, {
     text: 'question 2',
     answers: [
         'You',
         'Who',
         'There',
-        'You'
+        'Your'
     ],
-    answer: 1
+    answer: 'Who'
 }, {
     text: 'question 3',
     answers: [
@@ -27,7 +27,7 @@ var QUESTIONS = [{
         'Yes',
         'You'
     ],
-    answer: 2
+    answer: 'Yes'
 }, {
     text: 'question 4',
     answers: [
@@ -36,13 +36,40 @@ var QUESTIONS = [{
         'Where',
         'How'
     ],
-    answer: 3
+    answer: 'How'
 }];
 
 var state = {
     currentQuestion: -1, //-1 indicates the presence of the array
     correctlyAnswered: []
 };
+
+/*Lines 49-62 is using 'The Fisher-Yates (aka Knuth)' shuffle algorithm to shuffle questions and multiple choices arrays
+reference: https://github.com/coolaj86/knuth-shuffle*/
+var shuffle = function(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
+var shuffleQuestion = function(questionArray) {
+  shuffle(questionArray);
+}
+
+var shuffleChoices = function(questionArray) {
+  for(var i = 0; i < questionArray.length; i++){
+  shuffle(questionArray[i].answers);
+  }
+}
 
 //calculates total questions
 var computeTotalQuestion = function(questionsArray) {
@@ -80,7 +107,7 @@ var renderCurrentQuestionNumber = function(currentQuestionNum, element) {
 }
 
 //render current score:
-var renderCurrentScore = function(correctAnswerScore, element) { 
+var renderCurrentScore = function(correctAnswerScore, element) {
     element.text(correctAnswerScore);
 }
 
@@ -95,14 +122,14 @@ var renderQuestionChoices = function(state, questionsArray,questionElement, answ
     })
 }
 
-//after all the questions are answered, right after the last question, 
+//after all the questions are answered, right after the last question,
 //the questions-page will hide and the results page will show
 var showHideDiv = function(showDiv,hideDiv) {
     $(showDiv).show();
     $(hideDiv).hide();
 };
 
-//pushes the correct answered question number into the array, 
+//pushes the correct answered question number into the array,
 //will only be invoked if it is the correct answer
 var pushCorrectAnswer = function(state) {
     state.correctlyAnswered.push(state.currentQuestion);
@@ -115,10 +142,12 @@ var nextQuestionAnswer = function(state) {
 };
 
 
-//function that resets the currentQuestion to -1, 
+//function that resets the currentQuestion to -1,
 var resetGame = function() {
     resetCurrentScore(state);
     resetCurrentQuestion(state);
+    shuffleQuestion(QUESTIONS);
+    shuffleChoices(QUESTIONS);
     renderTotalQuestions(computeTotalQuestion(QUESTIONS), $('.questions-total'));
     computeAndRenderNextQues(state, QUESTIONS);
     showHideDiv('.questions-page', '.results-page');
@@ -126,10 +155,11 @@ var resetGame = function() {
 
 var computeAndRenderNextQues = function(state, questionsArray) {
     if ((state.currentQuestion + 1) >= questionsArray.length) {
+        renderCurrentScore(computeCorrectScore(state), $('.score')); //displays current score
         showHideDiv('.results-page', '.questions-page');
         $('#results-page-question').hide();
     } else {
-        nextQuestionAnswer(state); //increments state.currentQuestion  
+        nextQuestionAnswer(state); //increments state.currentQuestion
         renderQuestionChoices(state, questionsArray, $('.question'), $('.answers')); //displays both question & answer choices
         renderCurrentScore(computeCorrectScore(state), $('.score')); //displays current score
         renderCurrentQuestionNumber(computeCurrentQuestion(state), $('.question-current')); //modify currentQuestion that is being displayed, ex: state.currentQuestion=1, but displays 2
@@ -140,13 +170,16 @@ $(document).ready(function() {
 
     //when the page first loads, the total number of questions
     //and the first question & choices should be displayed
+    shuffleQuestion(QUESTIONS);
+    shuffleChoices(QUESTIONS);
+    console.log(QUESTIONS)
     renderTotalQuestions(computeTotalQuestion(QUESTIONS), $('.questions-total'));
     computeAndRenderNextQues(state, QUESTIONS);
 
     //when the answer choice is clicked, it will check for correct/incorrect answer
     //after checking both conditions, the next question should be displayed
     $('.answers').on('click', 'li', function() {
-        if ($(this).val() === QUESTIONS[state.currentQuestion].answer) { //if answer is correct
+        if ($(this).text() === QUESTIONS[state.currentQuestion].answer) { //if answer is correct
             alert('bravo!!');
             pushCorrectAnswer(state);
             computeAndRenderNextQues(state, QUESTIONS);
@@ -154,13 +187,10 @@ $(document).ready(function() {
             alert('Sorry!');
             computeAndRenderNextQues(state, QUESTIONS);
         }
+    })
+
+    $('.restart-button').on('click', function() {
+      resetGame();
     });
-$('.restart-button').on('click', function() {
-    resetGame();
-})
-
-
-
 
 });
-
